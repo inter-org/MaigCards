@@ -79,6 +79,10 @@ class Card:
     def __init__(self, type_: CardType, name): 
         self.type = type_
         self.name = name
+
+
+    def getType(self):
+        return self.type_
     
 class GemCard(Card):
     def __init__(self, color: GemColor):
@@ -90,6 +94,9 @@ class GemCard(Card):
     
     def isAdvanced(self):
         return GemCard.isAdvanced(self.color)
+
+    def getType(self):
+        return self.color
     
 
 
@@ -100,6 +107,9 @@ class MagicCard(Card):
         self.magictype = magictype
         self.demand = demand
         self.level = getMagicLevel(magictype, demand)
+
+    def getType(self):
+        return self.magictype
     
     @staticmethod
     def isCopyMagic(magictype):
@@ -218,9 +228,12 @@ class MagicCard(Card):
 
 
 class TreasureCard(Card):
-    def __init__(self, name):
+    def __init__(self, type_, name):
         Card.__init__(self, CardType.TREASURE, name)
+        self.treasuretype = type_
 
+    def getType(self):
+        return self.treasuretype;
 
 
 #if __name__ == "__main__":

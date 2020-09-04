@@ -1,4 +1,5 @@
-import gameinfo
+
+from . import gameinfo
 import random
 
 

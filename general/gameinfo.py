@@ -1,6 +1,11 @@
 from enum import IntEnum
 
-
+class PacketType(IntEnum):
+    PICK=0x01
+    ACT=0x02
+    SKIP=0x03
+    DROP=0x04
+    THROW=0x05
 
 class GemColor(IntEnum):
     RED=0x01
@@ -102,11 +107,11 @@ class GemCard(Card):
 
 class MagicCard(Card):
     __slots__ = ('magictype', 'demand', 'level')
-    def __init__(self, magictype: MagicType, demand):
-        Card.__init__(self, CardType.MAGIC, getMagicName(magictype))
+    def __init__(self, magictype: MagicType):
+        Card.__init__(self, CardType.MAGIC, MagicCard.getMagicName(magictype))
         self.magictype = magictype
-        self.demand = demand
-        self.level = getMagicLevel(magictype, demand)
+        self.demand = MagicCard.getDemand(magictype)
+        self.level = MagicCard.getMagicLevel(self.magictype, self.demand)
 
     def getType(self):
         return self.magictype

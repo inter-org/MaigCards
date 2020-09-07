@@ -9,7 +9,7 @@ import random
 import socket
 
 def throw()->int:
-    return [gameinfo.DiceChoice.RED, gameinfo.DiceChoice.RED, gameinfo.DiceChoice.BLUE, gameinfo.DiceChoice.BLUE, gameinfo.DiceChoice.GREEN, gameinfo.DiceChoice.BLACK, gameinfo.DiceChoice.WHITE, gameinfo.DiceChoice.PURPLE] [random.randint(0, 7)]
+    return [DiceChoice.RED, DiceChoice.RED, DiceChoice.BLUE, DiceChoice.BLUE, DiceChoice.GREEN, DiceChoice.BLACK, DiceChoice.WHITE, DiceChoice.PURPLE] [random.randint(0, 7)]
 
 class GameStatus(IntEnum):
     PREPARING=0x0
@@ -38,7 +38,7 @@ MAX_PLAYER=6
 
 # 游戏封包说明：
 # 这个游戏封包不会特别大，所以不需要分包之类的操作，下面说一说包的数据结构
-# 2B gameinfo.PacketType
+# 2B PacketType
 # 2B gameid
 # 1B performer
 '''
@@ -64,16 +64,16 @@ class Packet:
         self.type = type_
         self.performer = 0
         self.game_id = 0
-        if type_ == gameinfo.PacketType.PICK:
-            self.pick_type = gameinfo.CardType.GEM
+        if type_ == PacketType.PICK:
+            self.pick_type = CardType.GEM
 
-        elif type_ == gameinfo.PacketType.ACT:
+        elif type_ == PacketType.ACT:
             self.target = ""
             self.num_of_cards = 0
             self.cards = []
 
 
-        elif type_ == gameinfo.PacketType.DROP:
+        elif type_ == PacketType.DROP:
             self.num_of_cards = 0
             self.cards = []
 
@@ -95,13 +95,13 @@ class Packet:
         # print("gameid: {} : {}".format(int.from_bytes(gameid_b,'big'), int.from_bytes(res_bytes[2:3], 'big')))
         extra_bytes = bytes()
 
-        if self.type == gameinfo.PacketType.PICK:
+        if self.type == PacketType.PICK:
             extra_bytes = extra_bytes + (int(self.pick_type).to_bytes(1, byteorder='big'))
 
-        elif self.type == gameinfo.PacketType.ACT:
+        elif self.type == PacketType.ACT:
             extra_bytes = extra_bytes + (int(self.target).to_bytes(1, byteorder='big'))
 
-        if self.type == gameinfo.PacketType.ACT or self.type == PacketType.DROP:
+        if self.type == PacketType.ACT or self.type == PacketType.DROP:
             extra_bytes = extra_bytes + (int(self.num_of_cards).to_bytes(2, byteorder='big'))
             for i in range(0, self.num_of_cards):
                 extra_bytes = extra_bytes + (int(self.cards[i].type).to_bytes(1, byteorder='big'))
@@ -134,13 +134,13 @@ class Game:
     欢迎完善
     '''
     def pick(self): # 当前index为player_index的玩家抽卡
-        packet = Packet(gameinfo.PacketType.PICK)
+        packet = Packet(PacketType.PICK)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         return packet.serialize()
 
     def act(self, target_index, cards: list): # 打出卡片
-        packet = Packet(gameinfo.PacketType.ACT)
+        packet = Packet(PacketType.ACT)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         packet.target = target_index
@@ -149,13 +149,13 @@ class Game:
         return packet.serialize()
 
     def skip(self): # 跳过或者结束当前回合
-        packet = Packet(gameinfo.PacketType.SKIP)
+        packet = Packet(PacketType.SKIP)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         return packet.serialize()
 
     def drop(self, cards: list): # 弃牌
-        packet = Packet(gameinfo.PacketType.DROP)
+        packet = Packet(PacketType.DROP)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         packet.num_of_cards = len(cards)
@@ -163,7 +163,7 @@ class Game:
         return packet.serialize()
 
     def throw(self): # 投骰子
-        packet = Packet(gameinfo.PacketType.THROW)
+        packet = Packet(PacketType.THROW)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         return packet.serialize()

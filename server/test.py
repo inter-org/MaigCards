@@ -5,7 +5,7 @@ import threading
 
 def testServer():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('localhost', 2333))
+    sock.bind(('localhost', 2336))
     sock.listen()
 
     while True:

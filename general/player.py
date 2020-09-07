@@ -1,5 +1,3 @@
-
-from . import gameinfo
 import random
 
 

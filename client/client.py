@@ -2,14 +2,11 @@
 # -*- coding:UTF-8 -*-
 
 import sys
-sys.path.append('..')
 from enum import IntEnum
-from general.player import *
-from general.gameinfo import *
+from MaigCards.general.player import Player
+from MaigCards.general.gameinfo import *
 import random
-import pickle
-
-
+import socket
 
 def throw()->int:
     return [gameinfo.DiceChoice.RED, gameinfo.DiceChoice.RED, gameinfo.DiceChoice.BLUE, gameinfo.DiceChoice.BLUE, gameinfo.DiceChoice.GREEN, gameinfo.DiceChoice.BLACK, gameinfo.DiceChoice.WHITE, gameinfo.DiceChoice.PURPLE] [random.randint(0, 7)]
@@ -21,6 +18,23 @@ class GameStatus(IntEnum):
     SUSPEND=0x3
 
 MAX_PLAYER=6
+
+# # 
+# class GlobalVar:
+#     packets_send_lock = threading.Lock()
+#     packets_send = Queue()
+#     packets_recv_lock = threading.Lock()
+#     packets_recv = Queue()
+# 
+#     @staicmethod
+#     def getPackets2Send():
+#         return GlobalVar.packets_send
+# 
+#     @staticmethod
+#     def getPacketsRecv():
+#         return GlobalVar.packets_recv
+# 
+
 
 # 游戏封包说明：
 # 这个游戏封包不会特别大，所以不需要分包之类的操作，下面说一说包的数据结构
@@ -46,7 +60,7 @@ SKIP&THROW:
     无额外字节
 '''
 class Packet:
-    def __init__(self, type_: gameinfo.PacketType):
+    def __init__(self, type_: PacketType):
         self.type = type_
         self.performer = 0
         self.game_id = 0

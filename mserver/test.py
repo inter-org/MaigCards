@@ -1,11 +1,11 @@
 import socket
-import sys
-from MaigCards.server.server import *
 import threading
+from mserver.server import Server
 
 def testServer():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('localhost', 2336))
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('localhost', 2345))
     sock.listen()
 
     while True:
@@ -13,18 +13,27 @@ def testServer():
         print(conn, addr)
         while True:
             data = conn.recv(1024)
-            print(data)
             print(Server.unserialize(data))
+    print("server end")
 
 
 class ReceiveThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-    
 
     def run(self):
-        testServer()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(('localhost', 2555))
+        sock.listen()
 
+        conn, addr = sock.accept()
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+
+            print(Server.unserialize(data))
 
 
 if __name__ == '__main__':
@@ -32,6 +41,3 @@ if __name__ == '__main__':
     thread1.start()
 
     thread1.join()
-
-
-

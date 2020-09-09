@@ -1,9 +1,8 @@
-import sys
-from MaigCards.general.gameinfo import *
+from general.gameinfo import *
 
 
 class Server:
-    
+
     @staticmethod
     def unserialize(bytes_):
         typ = PacketType(int.from_bytes(bytes_[0:1], byteorder='big'))
@@ -21,11 +20,10 @@ class Server:
             num_of_cards = int.from_bytes((bytes_[5:7]) if typ == PacketType.ACT else (bytes_[4:6]), byteorder='big')
             cards = []
 
-            index = 8 if typ == PacketType.ACT else 7 
+            index = 8 if typ == PacketType.ACT else 7
             for i in range(0, num_of_cards):
-                cards.append(int.from_bytes(bytes_[index:index+2], byteorder='big'))
-                index = index + 3 
-
+                cards.append(int.from_bytes(bytes_[index:index + 2], byteorder='big'))
+                index = index + 3
 
             names = [MagicCard.getMagicName(x) for x in cards]
             if typ == PacketType.ACT:
@@ -38,4 +36,3 @@ class Server:
 
         if typ == PacketType.THROW:
             return "{}: {} throw the dice".format(game_id, performer)
-

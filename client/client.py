@@ -1,23 +1,25 @@
 #!/usr/bin/python
 # -*- coding:UTF-8 -*-
 
-import sys
-from enum import IntEnum
-from MaigCards.general.player import Player
-from MaigCards.general.gameinfo import *
 import random
-import socket
 
-def throw()->int:
-    return [DiceChoice.RED, DiceChoice.RED, DiceChoice.BLUE, DiceChoice.BLUE, DiceChoice.GREEN, DiceChoice.BLACK, DiceChoice.WHITE, DiceChoice.PURPLE] [random.randint(0, 7)]
+from general.gameinfo import *
+from general.player import Player
+
+
+def throw() -> int:
+    return [DiceChoice.RED, DiceChoice.RED, DiceChoice.BLUE, DiceChoice.BLUE, DiceChoice.GREEN, DiceChoice.BLACK,
+            DiceChoice.WHITE, DiceChoice.PURPLE][random.randint(0, 7)]
+
 
 class GameStatus(IntEnum):
-    PREPARING=0x0
-    STARTED=0x1
-    FINISHED=0x2
-    SUSPEND=0x3
+    PREPARING = 0x0
+    STARTED = 0x1
+    FINISHED = 0x2
+    SUSPEND = 0x3
 
-MAX_PLAYER=6
+
+MAX_PLAYER = 6
 
 # # 
 # class GlobalVar:
@@ -59,6 +61,8 @@ DROP:
 SKIP&THROW:
     无额外字节
 '''
+
+
 class Packet:
     def __init__(self, type_: PacketType):
         self.type = type_
@@ -77,7 +81,6 @@ class Packet:
             self.num_of_cards = 0
             self.cards = []
 
-
     def serialize(self):
         # print("type={}".format(self.type))
         res_bytes = bytes()
@@ -86,7 +89,6 @@ class Packet:
         gameid_b = (self.game_id).to_bytes(2, byteorder='big')
 
         # print("{}:{}:{}".format(type_b, performer_b, gameid_b))
-
 
         res_bytes = type_b + performer_b + gameid_b
         # print("res: {}".format(res_bytes))
@@ -122,7 +124,6 @@ class Game:
 
         self.player_index = 0
 
-     
     def join(self, player_: Player):
         if len(self.players) >= MAX_PLAYER:
             return (0, "full")
@@ -133,13 +134,14 @@ class Game:
     下面五个方法一律返回bytearray()
     欢迎完善
     '''
-    def pick(self): # 当前index为player_index的玩家抽卡
+
+    def pick(self):  # 当前index为player_index的玩家抽卡
         packet = Packet(PacketType.PICK)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         return packet.serialize()
 
-    def act(self, target_index, cards: list): # 打出卡片
+    def act(self, target_index, cards: list):  # 打出卡片
         packet = Packet(PacketType.ACT)
         packet.performer = self.player_index
         packet.game_id = self.game_id
@@ -148,13 +150,13 @@ class Game:
         packet.cards = cards
         return packet.serialize()
 
-    def skip(self): # 跳过或者结束当前回合
+    def skip(self):  # 跳过或者结束当前回合
         packet = Packet(PacketType.SKIP)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         return packet.serialize()
 
-    def drop(self, cards: list): # 弃牌
+    def drop(self, cards: list):  # 弃牌
         packet = Packet(PacketType.DROP)
         packet.performer = self.player_index
         packet.game_id = self.game_id
@@ -162,12 +164,11 @@ class Game:
         packet.cards = cards
         return packet.serialize()
 
-    def throw(self): # 投骰子
+    def throw(self):  # 投骰子
         packet = Packet(PacketType.THROW)
         packet.performer = self.player_index
         packet.game_id = self.game_id
         return packet.serialize()
-     
 
     @property
     def status(self):
@@ -180,6 +181,3 @@ class Game:
     @property
     def roundCount(self):
         return self.round_count
-
-    
-
